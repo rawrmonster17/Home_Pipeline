@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import pipeline
 import onepasswordcli
+import computer
+import json
 
 
 if __name__ == '__main__':
@@ -13,3 +15,8 @@ if __name__ == '__main__':
                                      result["username"],
                                      result["password"])
     pipelineobj.send_file(file_to_send, remote_path)
+    computerobj = computer.Computer(pipelineobj)
+    output = computerobj.check_for_reboot_required()
+    json_output = json.loads(output)
+    if str(json_output["stdout"]).strip().lower() == "true":
+        print("reboot required")

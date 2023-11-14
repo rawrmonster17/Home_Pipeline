@@ -20,3 +20,5 @@ if __name__ == '__main__':
     json_output = json.loads(output)
     if str(json_output["stdout"]).strip().lower() == "true":
         print("reboot required")
+    output = computerobj.check_apt_upgrades()
+    print(output)

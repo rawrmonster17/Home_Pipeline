@@ -1,6 +1,6 @@
 # Home_Pipeline
 
-Short project description here.
+This project is to automate items around my house. It will be an ever growing project.
 
 ## Getting Started
 

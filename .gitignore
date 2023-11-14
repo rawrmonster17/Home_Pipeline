@@ -1,5 +1,3 @@
-# ignore my password file
-src/config.py
 # ignore my python virtual environment
 bin/
 include/

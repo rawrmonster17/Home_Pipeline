@@ -44,10 +44,11 @@ class SSHClient:
         while shell.recv_stderr_ready():
             error_output += shell.recv_stderr(1024).decode()
         print("Exiting stderr loop")  # Debug print
-        return {
+        returned_output = {
             "stdout": output,
             "stderr": error_output
         }
+        return json.dumps(returned_output)
 
     def run_command(self, command):
         stdin, stdout, stderr = self.client.exec_command(command)

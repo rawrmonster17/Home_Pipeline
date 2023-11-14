@@ -1,8 +1,8 @@
-# ignore my password file
-src/config.py
 # ignore my python virtual environment
 bin/
 include/
 lib/
 lib64/
+lib64
+src/__pycache__
 pyvenv.cfg

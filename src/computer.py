@@ -27,7 +27,13 @@ class Computer:
 
     def check_for_reboot_required(self):
         command = "test -f /var/run/reboot-required && echo true || echo false"
-        return self.ssh_client.run_command(command)
+        output_json = self.ssh_client.run_command(command)
+        command = json.loads(output_json)["stdout"]
+        # with out strip it wasn't working
+        if str(command).lower().strip() == "true":
+            return True
+        else:
+            return False
 
     def reboot_if_required(self):
         bool_value = self.check_for_reboot_required()

@@ -14,14 +14,16 @@ if __name__ == '__main__':
     pipelineobj = pipeline.SSHClient(result["website"],
                                      result["username"],
                                      result["password"])
-    pipelineobj.send_file(file_to_send, remote_path)
+    pipelineobj.file_or_folder_sender(file_to_send, remote_path)
     computerobj = computer.Computer(pipelineobj)
     output = computerobj.check_for_reboot_required()
     if output:
         print("Reboot required")
-        # I want to add the reboot here but not yet.
-        # computerobj.reboot_if_required()
+        computerobj.update_apt_repo()
+        computerobj.apt_upgrade()
+        computerobj.reboot_if_required()
     else:
-        pass
-    output = computerobj.check_apt_upgrades()
-    print(output)
+        output = computerobj.check_apt_upgrades()
+        computerobj.update_apt_repo()
+        computerobj.reboot_if_required()
+        print("No reboot required and installed updates")

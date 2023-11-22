@@ -5,5 +5,7 @@ lib/
 lib64/
 lib64
 src/__pycache__/
+env/
 *.pyc
 pyvenv.cfg
+

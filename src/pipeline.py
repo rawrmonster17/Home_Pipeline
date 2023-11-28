@@ -2,6 +2,7 @@
 import paramiko
 import json
 import time
+import os
 
 
 class SSHClient:
@@ -20,12 +21,22 @@ class SSHClient:
     def __del__(self):
         self.client.close()
 
-    def send_file(self, local_path, remote_path):
+    def file_or_folder_sender(self, local_path, remote_path):
         sftp = self.client.open_sftp()
-        remote_path = remote_path.strip()
-        sftp.put(local_path, remote_path)
+        if os.path.isfile(local_path):
+            # It's a file, use the existing method
+            sftp.put(local_path, remote_path)
+        elif os.path.isdir(local_path):
+            # It's a directory, list the contents and call this method recursively
+            try:
+                sftp.mkdir(remote_path)
+            except IOError:
+                # The directory probably already exists
+                pass
+            for item in os.listdir(local_path):
+                self.file_or_folder_sender(os.path.join(local_path, item), os.path.join(remote_path, item))
         sftp.close()
-
+    
     def run_sudo_command(self, command):
         shell = self.client.invoke_shell()
         shell.send('sudo -S %s\n' % command)
@@ -33,17 +44,13 @@ class SSHClient:
         shell.send('%s\n' % self.password)  # Send the password
         time.sleep(5)  # Allow time for the command to execute
         output = ""
-        print("Starting stdout loop")  # Debug print
         while shell.recv_ready():
             output += shell.recv(1024).decode()
-        print("Exiting stdout loop")  # Debug print
         # Remove the command prompt from the output
         output = "\n".join(output.splitlines()[:-1])
         error_output = ""
-        print("Starting stderr loop")  # Debug print
         while shell.recv_stderr_ready():
             error_output += shell.recv_stderr(1024).decode()
-        print("Exiting stderr loop")  # Debug print
         returned_output = {
             "stdout": output,
             "stderr": error_output
@@ -57,6 +64,20 @@ class SSHClient:
             "stderr": stderr.read().decode()
         }
         return json.dumps(output)
+
+    def run_python_script_in_venv(self, script_path, venv_path, requirements_path=None):
+        # Make sure venv is installed
+        self.run_sudo_command('apt install python3-venv -y')
+        # Create the virtual environment
+        self.run_sudo_command(f'python3 -m venv {venv_path}')
+        # Activate the virtual enviroment
+        source_command = f'source {venv_path}/bin/activate'
+        # If a requirements file is provided install the requirements
+        if requirements_path is not None:
+            self.run_sudo_command(f'{source_command} && pip install -r {requirements_path}')
+        # Run the script
+        result = self.run_sudo_command(f'{source_command} && python3 {script_path}')
+        return result
 
 
 if __name__ == "__main__":

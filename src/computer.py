@@ -1,6 +1,7 @@
 '''The function of this library file is to hold all of the code that is
 meant to be reused on computers.'''
 import json
+import time
 
 
 class Computer:
@@ -36,9 +37,39 @@ class Computer:
             return False
 
     def reboot_if_required(self):
-        bool_value = self.check_for_reboot_required()
-        if bool_value:
-            command = "reboot"
-            return self.ssh_client.run_sudo_command(command)
+        time_check = self.check_if_ok_to_reboot()
+        if time_check:
+            bool_value = self.check_for_reboot_required()
+            if bool_value:
+                command = "reboot"
+                return self.ssh_client.run_sudo_command(command)
+            else:
+                pass
         else:
-            pass
+            print("Not time to reboot yet")
+            # I need to create a way to schedule the reboot to happen at 3am
+            # if a reboot is required.
+            self.schedule_reboot()
+
+    def apt_upgrade(self):
+        command = "apt upgrade -y"
+        return self.ssh_client.run_sudo_command(command)
+    
+    def check_if_ok_to_reboot(self):
+        # I want to check if it is around 3am - 4am in the morning.
+        # if it is I want to return true else false.
+        # get current time
+        current_time = time.localtime()
+        # check if time is between 3am and 4am
+        if current_time.tm_hour >= 3 and current_time.tm_hour < 4:
+            return True
+        else:
+            return False
+    
+    def schedule_reboot(self):
+        # If this method is called I want it to reboot the machine at 3am one time.
+        reboot_command = "reboot --force 03:00"
+        print("Scheduling reboot for 3am")
+        return self.ssh_client.run_sudo_command(reboot_command)
+        
+        

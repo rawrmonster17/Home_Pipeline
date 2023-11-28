@@ -18,23 +18,30 @@ class SSHClient:
                             password=self.password,
                             port=self.port)
 
-    def __del__(self):
-        self.client.close()
-
     def file_or_folder_sender(self, local_path, remote_path):
         sftp = self.client.open_sftp()
-        if os.path.isfile(local_path):
-            # It's a file, use the existing method
-            sftp.put(local_path, remote_path)
-        elif os.path.isdir(local_path):
-            # It's a directory, list the contents and call this method recursively
-            try:
-                sftp.mkdir(remote_path)
-            except IOError:
-                # The directory probably already exists
-                pass
-            for item in os.listdir(local_path):
-                self.file_or_folder_sender(os.path.join(local_path, item), os.path.join(remote_path, item))
+        try:
+            if os.path.isfile(local_path):
+                # It's a file, use the existing method
+                sftp.put(local_path, remote_path)
+            elif os.path.isdir(local_path):
+                # It's a directory, list the contents and call this method recursively
+                try:
+                    print(f"Creating remote directory {remote_path}")
+                    sftp.mkdir(remote_path)
+                except IOError:
+                    # The directory probably already exists
+                    print(f"Remote directory {remote_path} already exists")
+                    pass
+                for item in os.listdir(local_path):
+                    try:
+                        local_item_path = os.path.join(local_path, item)
+                        remote_item_path = os.path.join(remote_path, item)
+                        self.file_or_folder_sender(local_item_path, remote_item_path)
+                    except Exception as e:
+                        print(f"Error: {e}")
+        except Exception as e: 
+            print(f"Error: {e}")
         sftp.close()
     
     def run_sudo_command(self, command):

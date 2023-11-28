@@ -2,6 +2,7 @@
 import pipeline
 import onepasswordcli
 import computer
+import movies_and_videos
 
 
 if __name__ == '__main__':
@@ -14,16 +15,18 @@ if __name__ == '__main__':
     pipelineobj = pipeline.SSHClient(result["website"],
                                      result["username"],
                                      result["password"])
-    pipelineobj.file_or_folder_sender(file_or_folder, remote_path)
-    computerobj = computer.Computer(pipelineobj)
-    output = computerobj.check_for_reboot_required()
-    if output:
-        print("Reboot required")
-        computerobj.update_apt_repo()
-        computerobj.apt_upgrade()
-        computerobj.reboot_if_required()
-    else:
-        output = computerobj.check_apt_upgrades()
-        computerobj.update_apt_repo()
-        computerobj.reboot_if_required()
-        print("No reboot required and installed updates")
+    # pipelineobj.file_or_folder_sender(file_or_folder, remote_path)
+    # computerobj = computer.Computer(pipelineobj)
+    # output = computerobj.check_for_reboot_required()
+    # if output:
+    #     print("Reboot required")
+    #     computerobj.update_apt_repo()
+    #     computerobj.apt_upgrade()
+    #     computerobj.reboot_if_required()
+    # else:
+    #     output = computerobj.check_apt_upgrades()
+    #     computerobj.update_apt_repo()
+    #     computerobj.reboot_if_required()
+    #     print("No reboot required and installed updates")
+    movieobj = movies_and_videos.Movie(pipelineobj)
+    movieobj.compare_movie_folders()

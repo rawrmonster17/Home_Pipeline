@@ -68,8 +68,9 @@ class Computer:
     
     def schedule_reboot(self):
         # If this method is called I want it to reboot the machine at 3am one time.
-        reboot_command = "reboot --force 03:00"
-        print("Scheduling reboot for 3am")
+        reboot_command = "echo 'sudo reboot' | at 3am next Tuesday"
+        self.ssh_client.run_sudo_command("apt install at -y")
+        print("Scheduling reboot for 3am next Tuesday")
         return self.ssh_client.run_sudo_command(reboot_command)
         
         

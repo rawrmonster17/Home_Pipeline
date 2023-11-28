@@ -9,12 +9,12 @@ if __name__ == '__main__':
     result = op_manager.run_op_command(["item", "get", "server01_ssh"])
     result = op_manager.parse_user_password_website(result)
     # This will end up being a docker-compose.yml file
-    file_to_send = "src/test.txt"
-    remote_path = "/home/rawrmonster/test.txt"
+    file_or_folder = "c:/Users/rawrmonster/Downloads/docker-compose.yml"
+    remote_path = "/home/rawrmonster/docker-compose.yml"
     pipelineobj = pipeline.SSHClient(result["website"],
                                      result["username"],
                                      result["password"])
-    pipelineobj.file_or_folder_sender(file_to_send, remote_path)
+    pipelineobj.file_or_folder_sender(file_or_folder, remote_path)
     computerobj = computer.Computer(pipelineobj)
     output = computerobj.check_for_reboot_required()
     if output:

@@ -49,7 +49,7 @@ class Computer:
             print("Not time to reboot yet")
             # I need to create a way to schedule the reboot to happen at 3am
             # if a reboot is required.
-            self.ssh_client.schedule_reboot()
+            self.schedule_reboot()
 
     def apt_upgrade(self):
         command = "apt upgrade -y"

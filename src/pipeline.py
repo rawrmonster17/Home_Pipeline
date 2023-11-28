@@ -2,6 +2,7 @@
 import paramiko
 import json
 import time
+import os
 
 
 class SSHClient:
@@ -22,8 +23,18 @@ class SSHClient:
 
     def file_or_folder_sender(self, local_path, remote_path):
         sftp = self.client.open_sftp()
-        remote_path = remote_path.strip()
-        sftp.put(local_path, remote_path)
+        if os.path.isfile(local_path):
+            # It's a file, use the existing method
+            sftp.put(local_path, remote_path)
+        elif os.path.isdir(local_path):
+            # It's a directory, list the contents and call this method recursively
+            try:
+                sftp.mkdir(remote_path)
+            except IOError:
+                # The directory probably already exists
+                pass
+            for item in os.listdir(local_path):
+                self.file_or_folder_sender(os.path.join(local_path, item), os.path.join(remote_path, item))
         sftp.close()
     
     def run_sudo_command(self, command):

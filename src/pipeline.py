@@ -22,21 +22,24 @@ class SSHClient:
         self.client.close()
 
     def file_or_folder_sender(self, local_path, remote_path):
+        # This method does not work as it should
         sftp = self.client.open_sftp()
         if os.path.isfile(local_path):
             # It's a file, use the existing method
             sftp.put(local_path, remote_path)
         elif os.path.isdir(local_path):
-            # It's a directory, list the contents and call this method recursively
+            # It's a directory, list the contents and
+            # call this method recursively
             try:
                 sftp.mkdir(remote_path)
             except IOError:
                 # The directory probably already exists
                 pass
             for item in os.listdir(local_path):
-                self.file_or_folder_sender(os.path.join(local_path, item), os.path.join(remote_path, item))
+                self.file_or_folder_sender(os.path.join(local_path, item),
+                                           os.path.join(remote_path, item))
         sftp.close()
-    
+
     def run_sudo_command(self, command):
         shell = self.client.invoke_shell()
         shell.send('sudo -S %s\n' % command)
@@ -65,7 +68,10 @@ class SSHClient:
         }
         return json.dumps(output)
 
-    def run_python_script_in_venv(self, script_path, venv_path, requirements_path=None):
+    def run_python_script_in_venv(self,
+                                  script_path,
+                                  venv_path,
+                                  requirements_path=None):
         # Make sure venv is installed
         self.run_sudo_command('apt install python3-venv -y')
         # Create the virtual environment
@@ -74,9 +80,9 @@ class SSHClient:
         source_command = f'source {venv_path}/bin/activate'
         # If a requirements file is provided install the requirements
         if requirements_path is not None:
-            self.run_sudo_command(f'{source_command} && pip install -r {requirements_path}')
+            self.run_sudo_command(f'{source_command} && pip install -r {requirements_path}') # noqa
         # Run the script
-        result = self.run_sudo_command(f'{source_command} && python3 {script_path}')
+        result = self.run_sudo_command(f'{source_command} && python3 {script_path}') # noqa
         return result
 
 
